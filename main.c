@@ -123,26 +123,12 @@ void generate()
 
     }
 
-    /*Colour in city  */
+    /*Colour in cityblocks */
     for(int i = 0; i < shape; i++)
     {
-        al_draw_filled_triangle(center.x, center.y, wall[i].x, wall[i].y, wall[(i+1)%shape].x, wall[(i+1)%shape].y, COL_CITY); 
+        al_draw_filled_triangle(center.x, center.y, wall[i].x, wall[i].y, wall[(i+1)%shape].x, wall[(i+1)%shape].y, COL_BUILDING);
     }
 
-    /*Draw citywall */
-    for(int i = 0; i < shape; i++)
-    {
-        al_draw_line(wall[i].x, wall[i].y, wall[(i+1)%shape].x, wall[(i+1)%shape].y, COL_WALL, 10);
-        if(i % ( shape / 4))
-        {
-            al_draw_filled_circle(wall[i].x, wall[i].y, 12, COL_WALL);
-        }
-        else
-        {
-            al_draw_filled_circle(wall[i].x, wall[i].y, 16, COL_WALL);
-        }
-
-    }
 
     mainstreet inner_blocks[shape];
     mainstreet outer_blocks[shape];
@@ -163,7 +149,7 @@ void generate()
         }
 
         /* Smaller chance to have a segment divider in the lower 1/3 */
-        if(rand() % (shape / 3) == 0)
+        if(rand() % (shape / 5) == 0)
         {
             inner_blocks[inner_count].length = mainstreets[i].length * (rand() % 20 + 10) / 100;
             inner_blocks[inner_count].slope = mainstreets[i].slope;
@@ -172,9 +158,52 @@ void generate()
             inner_count++; /* TODO: remove */
         }
     }
-
-    /*Draw cityblocks*/
+    /* Convert segment points into coordinates */
+    point point_inner_block[inner_count];
+    point point_outer_block[outer_count];
+    for(int i = 0; i < inner_count; i++)
+    {
+        point_inner_block[i].x = center.x + inner_blocks[i].length * cos(inner_blocks[i].slope);
+        point_inner_block[i].y = center.y + inner_blocks[i].length * sin(inner_blocks[i].slope);
+    }
     for(int i = 0; i < outer_count; i++)
     {
+        point_outer_block[i].x = center.x + outer_blocks[i].length * cos(outer_blocks[i].slope);
+        point_outer_block[i].y = center.y + outer_blocks[i].length * sin(outer_blocks[i].slope);
+    }
+
+    /* Draw main streets */
+    for(int i = 0; i < inner_count; i++)
+    {
+        al_draw_line(point_inner_block[i].x, point_inner_block[i].y, point_inner_block[(i+1)%inner_count].x, point_inner_block[(i+1)%inner_count].y, COL_CITY, 6);
+        al_draw_filled_circle(point_inner_block[i].x, point_inner_block[i].y, 3, COL_CITY);
+        if(rand() % 5 == 0)
+        {
+            al_draw_line(point_inner_block[i].x, point_inner_block[i].y, point_outer_block[i].x, point_outer_block[i].y, COL_CITY,6);
+        }
+    }
+    for(int i = 0; i < outer_count; i++)
+    {
+        al_draw_line(point_outer_block[i].x, point_outer_block[i].y, point_outer_block[(i+1)%outer_count].x, point_outer_block[(i+1)%outer_count].y, COL_CITY, 6);
+        al_draw_filled_circle(point_outer_block[i].x, point_outer_block[i].y, 3, COL_CITY);
+        if(rand() % 4 == 0)
+        {
+            al_draw_line(point_outer_block[i].x, point_outer_block[i].y, wall[i].x, wall[i].y, COL_CITY,6);
+        }
+    }
+
+    /*Draw citywall */
+    for(int i = 0; i < shape; i++)
+    {
+        al_draw_line(wall[i].x, wall[i].y, wall[(i+1)%shape].x, wall[(i+1)%shape].y, COL_WALL, 10);
+        if(i % ( shape / 4))
+        {
+            al_draw_filled_circle(wall[i].x, wall[i].y, 12, COL_WALL);
+        }
+        else
+        {
+            al_draw_filled_circle(wall[i].x, wall[i].y, 16, COL_WALL);
+        }
+
     }
 }
