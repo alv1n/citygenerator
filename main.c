@@ -8,7 +8,6 @@
 #define PI 3.14159265 
 #define SCREEN_W 640
 #define SCREEN_H 480
-const float FPS  = 60;
 
 #define COL_BACKGROUND al_map_rgb(0xE2, 0xD2, 0xB8)
 #define COL_CITY       al_map_rgb(0xB8, 0xA9, 0x95)
@@ -31,7 +30,7 @@ typedef struct
 void generate(void);
 
 /*Assumes polygon only has concave corners */
-void draw_polygon(point *list, int corners);
+/*void draw_polygon(point *list, int corners);*/
 
 int main(int argc, char *argv[])
 {
@@ -44,16 +43,19 @@ int main(int argc, char *argv[])
         srand(time(NULL));
     }
 
+    /*Initialise allegro*/
     al_init();
     al_init_primitives_addon();
     al_install_keyboard();
     
-    //Anti-aliasing
+    /*Anti-aliasing */
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
     al_set_new_display_option(ALLEGRO_SAMPLES, 8, ALLEGRO_SUGGEST);
 
+    /*Display to draw to*/
     ALLEGRO_DISPLAY *display = al_create_display(SCREEN_W, SCREEN_H);
     
+    /*Creating queue for events, to handle input and closing window*/
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     ALLEGRO_EVENT event;
 
@@ -64,10 +66,11 @@ int main(int argc, char *argv[])
     while(1)
     {
         al_flip_display();
+
         al_wait_for_event(queue, &event);
         if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
-            goto exit;
+            goto exit; 
         }
         if(event.type == ALLEGRO_EVENT_KEY_DOWN)
         {
@@ -89,6 +92,7 @@ exit:
     return 0;
 }
 
+/*Generate a new city*/
 void generate()
 {
     al_clear_to_color(COL_BACKGROUND);
@@ -100,7 +104,7 @@ void generate()
 
     /*Outline of city */
     int shape = rand() % 10 + 7;
-    printf("%d\n", shape);
+   
     point wall[shape];
     mainstreet mainstreets[shape];
     /*Generate outline */
@@ -154,17 +158,23 @@ void generate()
             outer_blocks[outer_count].length = mainstreets[i].length * (rand() % 30 + 50) / 100;
             outer_blocks[outer_count].slope = mainstreets[i].slope;
             
-            al_draw_circle(center.x + outer_blocks[outer_count].length * cos(mainstreets[i].slope), center.y + outer_blocks[outer_count].length * sin(mainstreets[i].slope), 3, COL_BUILDING, 1 ); //Draw a circle to denote place TODO: remove 
+            al_draw_circle(center.x + outer_blocks[outer_count].length * cos(mainstreets[i].slope), center.y + outer_blocks[outer_count].length * sin(mainstreets[i].slope), 3, COL_BUILDING, 1 ); /*Draw a circle to denote place TODO: remove */
             outer_count++;
-
-            /* Smaller chance to have a segment divider in the lower 1/3 */
         }
+
+        /* Smaller chance to have a segment divider in the lower 1/3 */
         if(rand() % (shape / 3) == 0)
         {
             inner_blocks[inner_count].length = mainstreets[i].length * (rand() % 20 + 10) / 100;
             inner_blocks[inner_count].slope = mainstreets[i].slope;
+
             al_draw_circle(center.x + inner_blocks[inner_count].length * cos(mainstreets[i].slope), center.y + inner_blocks[inner_count].length * sin(mainstreets[i].slope), 3, COL_BUILDING, 1 );
-            inner_count++;
+            inner_count++; /* TODO: remove */
         }
+    }
+
+    /*Draw cityblocks*/
+    for(int i = 0; i < outer_count; i++)
+    {
     }
 }
