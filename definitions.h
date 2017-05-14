@@ -13,8 +13,8 @@
 #define max(a,b) (a>b?a:b)
 
 #define PI 3.14159265 
-#define SCREEN_W 1680 
-#define SCREEN_H 1050 
+#define SCREEN_W 640
+#define SCREEN_H 480
 
 #define COL_BACKGROUND al_map_rgb(0xE2, 0xD2, 0xB8)
 #define COL_CITY       al_map_rgb(0xB8, 0xA9, 0x95)
@@ -36,6 +36,14 @@ typedef struct
     unsigned int length;
     float slope;
 }mainstreet;
+
+typedef struct
+{
+    point a;
+    point b;
+    point c;
+    point d;
+}CityBlock;
 
 typedef struct
 {

@@ -9,6 +9,9 @@
 
 extern void generate2(MenuOption *options)
 {
+    int rings = options[RINGS].val;
+    int size  = options[SIZE].val;
+    int walls_n = options[WALLS].val;
 
     al_clear_to_color(COL_BACKGROUND);
     /* Midpoint of city */
@@ -17,7 +20,6 @@ extern void generate2(MenuOption *options)
     center.y = SCREEN_H / 2;
     
     /* Allocate for walls */
-    int size = options[SIZE].val;
     point walls[size];
     mainstreet center_streets[size];
     
@@ -26,26 +28,56 @@ extern void generate2(MenuOption *options)
     /* Draw Walls */
     drawWalls(walls, options);
     
-    /* Create inner streets */
-    MenuOption *optionsStreets = malloc(OPTION_N * sizeof(MenuOption) );
-    memcpy(optionsStreets, options, OPTION_N*sizeof(MenuOption));
-    int rings = options[RINGS].val;
+    /* Generate CityBlocks */
+    CityBlock blocks[2 * walls_n];
 
-    /* Generate Streets */
-    point largeStreets[rings][options[WALLS].val];
-    mainstreet center_largeStreets[rings][options[WALLS].val];
-    for(int i = 0; i < rings; i++)
-    {
-        optionsStreets[SIZE].val -= options[SIZE].val / (rings+1);
-        optionsStreets[WALLS].val = options[WALLS].val - i;
-        generateWalls(center, optionsStreets, largeStreets[i], center_largeStreets[i]);
-        drawLargeStreets(largeStreets[i], optionsStreets);
-    }
+    generateCityBlocks(center, center_streets, options, blocks);
+
     
-
 }
 
+void generateCityBlocks(point center, mainstreet *streets, MenuOption *options, CityBlock *blocks)
+{
+    int rings = options[RINGS].val;
+    int size  = options[SIZE].val;
+    int walls_n = options[WALLS].val;
+    
+    point inner_ring[walls_n];
+    int inner_count = 0;
+    point outer_ring[walls_n];
+    for(int i = 0; i < walls_n; i++)
+    {
+        if(rand() % 3 != 0)
+        {
+            inner_ring[inner_count].x = center.x + streets[i].length * cos(streets[i].slope) / 4;
+            inner_ring[inner_count].y = center.y + streets[i].length * sin(streets[i].slope) / 4;
 
+            outer_ring[inner_count].x =center.x + variation + streets[i].length * cos(streets[i].slope) / 4 * 3;
+            outer_ring[inner_count].y =center.y + variation + streets[i].length * cos(streets[i].slope) / 4 * 3;
+            inner_count++;
+        }
+    }
+    printf("%d\n", inner_count);
+    for(int i = 0; i < inner_count; i++)
+    {
+        blocks[i].a.x = inner_ring[i].x;
+        blocks[i].a.y = inner_ring[i].y;
+
+        blocks[i].b.x = inner_ring[(i+1)%inner_count].x;
+        blocks[i].b.y = inner_ring[(i+1)%inner_count].y;
+
+        blocks[i].c.x = outer_ring[i].x;
+        blocks[i].c.y = outer_ring[i].y;
+
+        blocks[i].d.x = outer_ring[(i+1)%inner_count].x;
+        blocks[i].d.y = outer_ring[(i+1)%inner_count].y;
+
+        al_draw_line(blocks[i].a.x, blocks[i].a.y, blocks[i].c.x, blocks[i].c.y, COL_CITY, 5);
+        al_draw_line(blocks[i].b.x, blocks[i].b.y, blocks[i].d.x, blocks[i].d.y, COL_CITY, 5);
+        al_draw_line(blocks[i].a.x, blocks[i].a.y, blocks[i].b.x, blocks[i].b.y, COL_CITY, 5);
+        al_draw_line(blocks[i].c.x, blocks[i].c.y, blocks[i].d.x, blocks[i].d.y, COL_CITY, 5);
+    }
+}
 
 extern void generateWalls(point center, MenuOption *options, point *walls, mainstreet *streets)
 {
