@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     al_register_event_source( queue, al_get_timer_event_source(timer));
 
     /* Initalize options */
-    int selected = 0;
+    unsigned int selected = 0;
     MenuOption *options = calloc(OPTION_N, sizeof(MenuOption) );
    
     options[WALLS].val = 10;
@@ -62,6 +62,10 @@ int main(int argc, char *argv[])
     options[SIZE].val = 140;
     options[SIZE].desc = "Size of city";
     options[SIZE].offset = 10;
+
+    options[EXITS].val = 1;
+    options[EXITS].desc = "Amount of exits";
+    options[EXITS].offset = 1;
 
 
     /* TODO Add other options */
@@ -92,9 +96,27 @@ int main(int argc, char *argv[])
             {
                 goto exit;
             }
+            /*Controls for settings */
             if(event.keyboard.keycode == ALLEGRO_KEY_UP)
             {
+            //    selected = selected > 0 ? selected-- : selected;
+                selected--;
             }
+            if(event.keyboard.keycode == ALLEGRO_KEY_DOWN)
+            {
+                //selected = selected < OPTION_N ? selected++ : selected; 
+                selected++;
+            }
+            if(event.keyboard.keycode == ALLEGRO_KEY_RIGHT)
+            {
+                options[selected].val += options[selected].offset;
+            }
+            if(event.keyboard.keycode == ALLEGRO_KEY_LEFT)
+            {
+                options[selected].val -= options[selected].offset;
+            }
+            
+
             drawGUI(options, selected);
         }
         if(event.type == ALLEGRO_EVENT_TIMER)
@@ -226,6 +248,7 @@ void generate()
 void drawGUI(MenuOption *options, int selected)
 {
     int font_size = 24;
+    al_draw_filled_rectangle(0,0,  100,OPTION_N*font_size, COL_BACKGROUND);
     ALLEGRO_FONT *font = al_load_font("BLKCHCRY.TTF", font_size, 0);
     for(unsigned int i = 0; i < OPTION_N; i++)
     {

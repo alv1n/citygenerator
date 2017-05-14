@@ -36,7 +36,7 @@ extern void generate2(MenuOption *options)
     mainstreet center_largeStreets[rings][options[WALLS].val];
     for(int i = 0; i < rings; i++)
     {
-        optionsStreets[SIZE].val = options[SIZE].val * (i+1) / (rings+2);
+        optionsStreets[SIZE].val -= options[SIZE].val / (rings+1);
         optionsStreets[WALLS].val = options[WALLS].val - i;
         generateWalls(center, optionsStreets, largeStreets[i], center_largeStreets[i]);
         drawLargeStreets(largeStreets[i], optionsStreets);
@@ -85,5 +85,6 @@ extern void drawLargeStreets(point *largeStreets, MenuOption *options)
     for(int i = 0; i < n; i++)
     {
         al_draw_line(largeStreets[i].x, largeStreets[i].y, largeStreets[(i+1)%n].x, largeStreets[(i+1)%n].y, COL_CITY, 6);
+        al_draw_filled_circle(largeStreets[i].x, largeStreets[i].y, 3,COL_CITY);
     }
 }
