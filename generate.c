@@ -17,8 +17,6 @@ extern void generate2(MenuOption *options)
     center.y = SCREEN_H / 2;
     
     /* Allocate for walls */
-    //point *walls = malloc(options[SIZE].val * sizeof(point) );
-    //mainstreet *center_streets = malloc(options[SIZE].val * sizeof(mainstreet) );
     int size = options[SIZE].val;
     point walls[size];
     mainstreet center_streets[size];
@@ -28,7 +26,26 @@ extern void generate2(MenuOption *options)
     /* Draw Walls */
     drawWalls(walls, options);
     
+    /* Create inner streets */
+    MenuOption *optionsStreets = malloc(OPTION_N * sizeof(MenuOption) );
+    memcpy(optionsStreets, options, OPTION_N*sizeof(MenuOption));
+    int rings = options[RINGS].val;
+
+    /* Generate Streets */
+    point largeStreets[rings][options[WALLS].val];
+    mainstreet center_largeStreets[rings][options[WALLS].val];
+    for(int i = 0; i < rings; i++)
+    {
+        optionsStreets[SIZE].val = options[SIZE].val * (i+1) / (rings+2);
+        optionsStreets[WALLS].val = options[WALLS].val - i;
+        generateWalls(center, optionsStreets, largeStreets[i], center_largeStreets[i]);
+        drawLargeStreets(largeStreets[i], optionsStreets);
+    }
+    
+
 }
+
+
 
 extern void generateWalls(point center, MenuOption *options, point *walls, mainstreet *streets)
 {
@@ -37,10 +54,10 @@ extern void generateWalls(point center, MenuOption *options, point *walls, mains
     for(int i = 0; i < n; i++)
     {
         /* Randomize length */ 
-        streets[i].length = length + (rand() % (length / 2));
+        streets[i].length = length + (rand() % (length / 3 * 2 ));
 
         /*Get slope */
-        streets[i].slope = i * 2.0 * PI / (float) n ;
+        streets[i].slope = i * 2.0 * PI / (float) n  + (rand() % 20 / 20);
 
         /*Store as coordinates */
         walls[i].x = center.x + streets[i].length * cos(streets[i].slope);
@@ -58,5 +75,15 @@ extern void drawWalls(point *walls, MenuOption *options)
         /* Modifier for size */
         int s = (i % (n / 4) ) == 0 ? 0 : 4;
         al_draw_filled_circle(walls[i].x, walls[i].y, 12 + s, COL_WALL);
+    }
+}
+
+
+extern void drawLargeStreets(point *largeStreets, MenuOption *options)
+{
+    int n = options[WALLS].val;
+    for(int i = 0; i < n; i++)
+    {
+        al_draw_line(largeStreets[i].x, largeStreets[i].y, largeStreets[(i+1)%n].x, largeStreets[(i+1)%n].y, COL_CITY, 6);
     }
 }

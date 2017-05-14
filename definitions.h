@@ -21,8 +21,9 @@
 #define COL_WALL       al_map_rgb(0x5E, 0x56, 0x44)
 #define COL_BUILDLINE  al_map_rgb(0x2E, 0x2E, 0x2E)
 #define COL_BUILDING   al_map_rgb(0x70, 0x6D, 0x6D)
+#define COL_TEXT       al_map_rgb(0x1d, 0x1a, 0x12)
 
-#define option_n (sizeof(enum SETTINGS))
+#define OPTION_N (sizeof(enum SETTINGS))
 
 typedef struct
 {
@@ -71,5 +72,7 @@ void generateWalls(point center, MenuOption *options, point *walls, mainstreet *
 
 /* Draw stuff */
 void drawWalls(point *walls, MenuOption *options);
+void drawGUI(MenuOption *options, int selected);
+void drawLargeStreets(point *largeStreets, MenuOption *options);
 
 #endif

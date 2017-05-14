@@ -4,6 +4,8 @@
 #include <time.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <allegro5/allegro_font.h>
+#include <allegro5/allegro_ttf.h>
 #include "definitions.h"
 
 /*Assumes polygon only has concave corners */
@@ -24,6 +26,8 @@ int main(int argc, char *argv[])
     al_init();
     al_init_primitives_addon();
     al_install_keyboard();
+    al_init_font_addon();
+    al_init_ttf_addon();
     
     /*Anti-aliasing */
     al_set_new_display_option(ALLEGRO_SAMPLE_BUFFERS, 1, ALLEGRO_SUGGEST);
@@ -44,33 +48,34 @@ int main(int argc, char *argv[])
     al_register_event_source( queue, al_get_timer_event_source(timer));
 
     /* Initalize options */
-    MenuOption *options = calloc(option_n, sizeof(MenuOption) );
+    int selected = 0;
+    MenuOption *options = calloc(OPTION_N, sizeof(MenuOption) );
+   
     options[WALLS].val = 10;
     options[WALLS].desc = "No. of walls";
     options[WALLS].offset = 1;
+   
+    options[RINGS].val = 2;
+    options[RINGS].desc = "No of blocks";
+    options[RINGS].offset = 1;
+
     options[SIZE].val = 140;
     options[SIZE].desc = "Size of city";
     options[SIZE].offset = 10;
 
+
     /* TODO Add other options */
 
-    
+    al_start_timer(timer);
     generate2(options);
     while(1)
     {
-        al_flip_display();
-
         al_wait_for_event(queue, &event);
         if(event.type == ALLEGRO_EVENT_DISPLAY_CLOSE)
         {
             goto exit; 
         }
         
-        if(event.type == ALLEGRO_EVENT_TIMER)
-        {
-            al_flip_display();
-            al_start_timer(timer);
-        }
 
         if(event.type == ALLEGRO_EVENT_KEY_DOWN)
         {
@@ -87,6 +92,15 @@ int main(int argc, char *argv[])
             {
                 goto exit;
             }
+            if(event.keyboard.keycode == ALLEGRO_KEY_UP)
+            {
+            }
+            drawGUI(options, selected);
+        }
+        if(event.type == ALLEGRO_EVENT_TIMER)
+        {
+            al_flip_display();
+            al_start_timer(timer);
         }
     }
 exit:
@@ -127,8 +141,7 @@ void generate()
 
     /*Colour in cityblocks */
     for(int i = 0; i < shape; i++)
-    {
-        al_draw_filled_triangle(center.x, center.y, wall[i].x, wall[i].y, wall[(i+1)%shape].x, wall[(i+1)%shape].y, COL_BUILDING);
+    { al_draw_filled_triangle(center.x, center.y, wall[i].x, wall[i].y, wall[(i+1)%shape].x, wall[(i+1)%shape].y, COL_BUILDING);
     }
 
 
@@ -210,3 +223,18 @@ void generate()
     }
 }
 
+void drawGUI(MenuOption *options, int selected)
+{
+    int font_size = 24;
+    ALLEGRO_FONT *font = al_load_font("BLKCHCRY.TTF", font_size, 0);
+    for(unsigned int i = 0; i < OPTION_N; i++)
+    {
+        if(i == (unsigned int) selected)
+        {
+            al_draw_line(0, font_size * i, 0, font_size * (i+1), COL_TEXT, 10);
+        }
+        al_draw_textf( font, COL_TEXT, 11, font_size * i, 0, "%s: %d", options[i].desc, options[i].val);
+    }
+
+    al_destroy_font(font);
+}
