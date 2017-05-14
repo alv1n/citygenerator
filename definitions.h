@@ -1,6 +1,14 @@
 #ifndef definitions
 #define definitions
 
+#include <stdlib.h>
+#include <math.h>
+#include <stdio.h>
+#include <time.h>
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_primitives.h>
+#include "definitions.h"
+
 #define min(a,b) (a<b?a:b)
 #define max(a,b) (a>b?a:b)
 
@@ -13,6 +21,8 @@
 #define COL_WALL       al_map_rgb(0x5E, 0x56, 0x44)
 #define COL_BUILDLINE  al_map_rgb(0x2E, 0x2E, 0x2E)
 #define COL_BUILDING   al_map_rgb(0x70, 0x6D, 0x6D)
+
+#define option_n (sizeof(enum SETTINGS))
 
 typedef struct
 {
@@ -42,12 +52,12 @@ typedef struct
 {
     int val;
     const char *desc;
-    int offset;
+    int offset; /*Number to increase or decrease val by */
 }MenuOption;
 
 enum SETTINGS
 {
-    BORDERS,
+    WALLS,
     RINGS,
     SIZE,
     EXITS,
@@ -56,6 +66,10 @@ enum SETTINGS
 void generate(void);
 
 /* New generation */
+void generate2(MenuOption *options);
+void generateWalls(point center, MenuOption *options, point *walls, mainstreet *streets);
 
+/* Draw stuff */
+void drawWalls(point *walls, MenuOption *options);
 
 #endif

@@ -43,7 +43,19 @@ int main(int argc, char *argv[])
     al_register_event_source( queue, al_get_keyboard_event_source());
     al_register_event_source( queue, al_get_timer_event_source(timer));
 
-    generate();
+    /* Initalize options */
+    MenuOption *options = calloc(option_n, sizeof(MenuOption) );
+    options[WALLS].val = 10;
+    options[WALLS].desc = "No. of walls";
+    options[WALLS].offset = 1;
+    options[SIZE].val = 140;
+    options[SIZE].desc = "Size of city";
+    options[SIZE].offset = 10;
+
+    /* TODO Add other options */
+
+    
+    generate2(options);
     while(1)
     {
         al_flip_display();
@@ -66,21 +78,23 @@ int main(int argc, char *argv[])
             {
                 generate();
             }
+            if(event.keyboard.keycode == ALLEGRO_KEY_T)
+            {
+                generate2(options);
+            }
+
             if(event.keyboard.keycode == ALLEGRO_KEY_E)
             {
                 goto exit;
             }
         }
-
     }
-    
 exit:
     al_destroy_event_queue(queue);
     al_destroy_display(display);
     return 0;
 }
 
-/*Generate a new city*/
 void generate()
 {
     al_clear_to_color(COL_BACKGROUND);
@@ -195,3 +209,4 @@ void generate()
 
     }
 }
+
