@@ -4,30 +4,7 @@
 #include <time.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
-
-#define PI 3.14159265 
-#define SCREEN_W 640
-#define SCREEN_H 480
-
-#define COL_BACKGROUND al_map_rgb(0xE2, 0xD2, 0xB8)
-#define COL_CITY       al_map_rgb(0xB8, 0xA9, 0x95)
-#define COL_WALL       al_map_rgb(0x5E, 0x56, 0x44)
-#define COL_BUILDLINE  al_map_rgb(0x2E, 0x2E, 0x2E)
-#define COL_BUILDING   al_map_rgb(0x70, 0x6D, 0x6D)
-
-typedef struct
-{
-    float x;
-    float y;
-}point;
-
-typedef struct
-{
-    int length;
-    float slope;
-}mainstreet;
-
-void generate(void);
+#include "definitions.h"
 
 /*Assumes polygon only has concave corners */
 /*void draw_polygon(point *list, int corners);*/
@@ -59,8 +36,12 @@ int main(int argc, char *argv[])
     ALLEGRO_EVENT_QUEUE *queue = al_create_event_queue();
     ALLEGRO_EVENT event;
 
+    /* Create a timer to refresh display */
+    ALLEGRO_TIMER *timer = al_create_timer(1.0 / 60.0);
+
     al_register_event_source( queue, al_get_display_event_source(display));
     al_register_event_source( queue, al_get_keyboard_event_source());
+    al_register_event_source( queue, al_get_timer_event_source(timer));
 
     generate();
     while(1)
@@ -72,6 +53,13 @@ int main(int argc, char *argv[])
         {
             goto exit; 
         }
+        
+        if(event.type == ALLEGRO_EVENT_TIMER)
+        {
+            al_flip_display();
+            al_start_timer(timer);
+        }
+
         if(event.type == ALLEGRO_EVENT_KEY_DOWN)
         {
             if(event.keyboard.keycode == ALLEGRO_KEY_R)
