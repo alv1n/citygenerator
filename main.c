@@ -131,6 +131,7 @@ exit:
     return 0;
 }
 
+//Deprecated
 void generate()
 {
     al_clear_to_color(COL_BACKGROUND);

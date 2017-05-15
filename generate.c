@@ -13,7 +13,6 @@ extern void generate2(MenuOption *options)
     int size  = options[SIZE].val;
     int walls_n = options[WALLS].val;
 
-    al_clear_to_color(COL_BACKGROUND);
     /* Midpoint of city */
     point center;
     center.x = SCREEN_W / 2;
@@ -24,60 +23,49 @@ extern void generate2(MenuOption *options)
     mainstreet center_streets[size];
     
     generateWalls(center, options, walls, center_streets);
+    
+    /* Generate CityBlocks */
+    CityBlock blocks[rings * walls_n];
+
+    generateCityBlocks(center, center_streets, options, blocks);
+
+    al_clear_to_color(COL_BACKGROUND);
+
+    /* Colour in city */
+    drawCityFilling(center, walls, options);
 
     /* Draw Walls */
     drawWalls(walls, options);
     
-    /* Generate CityBlocks */
-    CityBlock blocks[2 * walls_n];
-
-    generateCityBlocks(center, center_streets, options, blocks);
-
-    
 }
 
-void generateCityBlocks(point center, mainstreet *streets, MenuOption *options, CityBlock *blocks)
+extern void generateCityBlocks(point center, mainstreet *streets, MenuOption *options, CityBlock *blocks)
 {
     int rings = options[RINGS].val;
     int size  = options[SIZE].val;
     int walls_n = options[WALLS].val;
-    
-    point inner_ring[walls_n];
-    int inner_count = 0;
-    point outer_ring[walls_n];
-    for(int i = 0; i < walls_n; i++)
-    {
-        if(rand() % 3 != 0)
-        {
-            inner_ring[inner_count].x = center.x + streets[i].length * cos(streets[i].slope) / 4;
-            inner_ring[inner_count].y = center.y + streets[i].length * sin(streets[i].slope) / 4;
 
-            outer_ring[inner_count].x =center.x + variation + streets[i].length * cos(streets[i].slope) / 4 * 3;
-            outer_ring[inner_count].y =center.y + variation + streets[i].length * cos(streets[i].slope) / 4 * 3;
-            inner_count++;
+    point list[rings][walls_n];
+    for(int i = 0; i < rings; i++)
+    {
+        for(int j = 0; j < walls_n; j++)
+        {
+            float length = streets[j].length / (float) (walls_n+1) * j;
+            length += rand() % (int) (length * 2 / 3) + (length * 1 / 3);
+            list[i][j].x = length * cos(streets[j].slope + 0.2 * j);
+            list[i][j].y = length * sin(streets[j].slope + 0.2 * j);
         }
     }
-    printf("%d\n", inner_count);
-    for(int i = 0; i < inner_count; i++)
+    /*
+    for(int i = 0; i < rings; i++)
     {
-        blocks[i].a.x = inner_ring[i].x;
-        blocks[i].a.y = inner_ring[i].y;
-
-        blocks[i].b.x = inner_ring[(i+1)%inner_count].x;
-        blocks[i].b.y = inner_ring[(i+1)%inner_count].y;
-
-        blocks[i].c.x = outer_ring[i].x;
-        blocks[i].c.y = outer_ring[i].y;
-
-        blocks[i].d.x = outer_ring[(i+1)%inner_count].x;
-        blocks[i].d.y = outer_ring[(i+1)%inner_count].y;
-
-        al_draw_line(blocks[i].a.x, blocks[i].a.y, blocks[i].c.x, blocks[i].c.y, COL_CITY, 5);
-        al_draw_line(blocks[i].b.x, blocks[i].b.y, blocks[i].d.x, blocks[i].d.y, COL_CITY, 5);
-        al_draw_line(blocks[i].a.x, blocks[i].a.y, blocks[i].b.x, blocks[i].b.y, COL_CITY, 5);
-        al_draw_line(blocks[i].c.x, blocks[i].c.y, blocks[i].d.x, blocks[i].d.y, COL_CITY, 5);
+        for(int j = 0; j < walls_n; j++)
+        {
+        }
     }
+    */
 }
+
 
 extern void generateWalls(point center, MenuOption *options, point *walls, mainstreet *streets)
 {
@@ -94,6 +82,15 @@ extern void generateWalls(point center, MenuOption *options, point *walls, mains
         /*Store as coordinates */
         walls[i].x = center.x + streets[i].length * cos(streets[i].slope);
         walls[i].y = center.y + streets[i].length * sin(streets[i].slope);
+    }
+}
+
+extern void drawCityFilling(point center, point *walls, MenuOption *options)
+{
+    int n = options[WALLS].val; 
+    for(int i = 0; i < n; i++)
+    {
+        al_draw_filled_triangle(center.x, center.y, walls[i].x, walls[i].y, walls[(i+1)%n].x, walls[(i+1)%n].y, COL_BUILDING);
     }
 }
 
