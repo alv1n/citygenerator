@@ -77,12 +77,12 @@ void generate(void);
 /* New generation */
 void generate2(MenuOption *options);
 void generateWalls(point center, MenuOption *options, point *walls, mainstreet *streets);
+void generateCityBlocks(point center, mainstreet *streets, point *walls, MenuOption *options, CityBlock *blocks);
 
 /* Draw stuff */
 void drawWalls(point *walls, MenuOption *options);
 void drawGUI(MenuOption *options, int selected);
 void drawLargeStreets(point *largeStreets, MenuOption *options);
-void generateCityBlocks(point center, mainstreet *streets, MenuOption *options, CityBlock *blocks);
 void drawCityFilling(point center, point *walls, MenuOption *options);
 
 #endif

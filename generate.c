@@ -21,50 +21,93 @@ extern void generate2(MenuOption *options)
     /* Allocate for walls */
     point walls[size];
     mainstreet center_streets[size];
-    
     generateWalls(center, options, walls, center_streets);
-    
+
     /* Generate CityBlocks */
     CityBlock blocks[rings * walls_n];
 
-    generateCityBlocks(center, center_streets, options, blocks);
+    printf("%d\n", walls->x);
+    generateCityBlocks(center, center_streets, walls, options, blocks);
 
     al_clear_to_color(COL_BACKGROUND);
 
     /* Colour in city */
     drawCityFilling(center, walls, options);
 
+    drawCityBlocks(blocks, rings*walls_n);
+
     /* Draw Walls */
     drawWalls(walls, options);
     
 }
 
-extern void generateCityBlocks(point center, mainstreet *streets, MenuOption *options, CityBlock *blocks)
+extern void drawCityBlocks(CityBlock *blocks, int n)
+{
+    for(int i = 0; i < n; i++)
+    {
+        al_draw_line(blocks[i].a.x, blocks[i].a.y, blocks[i].b.x, blocks[i].b.y, COL_CITY, 6);
+        al_draw_line(blocks[i].c.x, blocks[i].c.y, blocks[i].d.x, blocks[i].d.y, COL_CITY, 6);
+        al_draw_line(blocks[i].a.x, blocks[i].a.y, blocks[i].c.x, blocks[i].c.y, COL_CITY, 6);
+        al_draw_line(blocks[i].b.x, blocks[i].b.y, blocks[i].d.x, blocks[i].d.y, COL_CITY, 6);
+    }
+}
+
+extern void generateCityBlocks(point center, mainstreet *streets, point *walls, MenuOption *options, CityBlock *blocks)
 {
     int rings = options[RINGS].val;
     int size  = options[SIZE].val;
     int walls_n = options[WALLS].val;
 
+    /*Generate correct amount of walls */
     point list[rings][walls_n];
     for(int i = 0; i < rings; i++)
     {
         for(int j = 0; j < walls_n; j++)
         {
             int len =  j *  streets[j].length / (walls_n+1); + (rand() % ( (int) ((float) len * 2.0 / 3.0)) + (len * 1 / 3));
-            printf("%d\n", len);
-            list[i][j].x = len * cos(streets[j].slope );
-            list[i][j].y = len * sin(streets[j].slope );
+            list[i][j].x = center.x + len * cos(streets[j].slope );
+            list[i][j].y = center.y + len * sin(streets[j].slope );
         }
-        printf("---\n");
     }
-    /*
+
+    
     for(int i = 0; i < rings; i++)
     {
-        for(int j = 0; j < walls_n; j++)
+        if(i == rings - 1)
         {
+            for(int j = 0; j < walls_n; j++)
+            {
+                blocks[i*walls_n+j].a.x = list[i][j].x;
+                blocks[i*walls_n+j].a.y = list[i][j].y;
+
+                blocks[i*walls_n+j].b.x = list[i][(j+1)%walls_n].x;
+                blocks[i*walls_n+j].b.y = list[i][(j+1)%walls_n].y;
+
+                blocks[i*walls_n+j].b.x = walls[j].x; 
+                blocks[i*walls_n+j].b.y = walls[j].y;
+
+                blocks[i*walls_n+j].b.x = walls[(j+1)%walls_n].x;
+                blocks[i*walls_n+j].b.y = walls[(j+1)%walls_n].y;
+            }
+        }
+        else
+        {
+            for(int j = 0; j < walls_n; j++)
+            {
+                blocks[i*walls_n+j].a.x = list[i][j].x;
+                blocks[i*walls_n+j].a.y = list[i][j].y;
+
+                blocks[i*walls_n+j].b.x = list[i][(j+1)%walls_n].x;
+                blocks[i*walls_n+j].b.y = list[i][(j+1)%walls_n].y;
+
+                blocks[i*walls_n+j].b.x = list[i+1][j].x;
+                blocks[i*walls_n+j].b.y = list[i+1][j].y;
+
+                blocks[i*walls_n+j].b.x = list[i+1][(j+1)%walls_n].x;
+                blocks[i*walls_n+j].b.y = list[i+1][(j+1)%walls_n].y;
+            }
         }
     }
-    */
 }
 
 
