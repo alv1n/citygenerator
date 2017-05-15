@@ -50,11 +50,12 @@ extern void generateCityBlocks(point center, mainstreet *streets, MenuOption *op
     {
         for(int j = 0; j < walls_n; j++)
         {
-            float length = streets[j].length / (float) (walls_n+1) * j;
-            length += rand() % (int) (length * 2 / 3) + (length * 1 / 3);
-            list[i][j].x = length * cos(streets[j].slope + 0.2 * j);
-            list[i][j].y = length * sin(streets[j].slope + 0.2 * j);
+            int len =  j *  streets[j].length / (walls_n+1); + (rand() % ( (int) ((float) len * 2.0 / 3.0)) + (len * 1 / 3));
+            printf("%d\n", len);
+            list[i][j].x = len * cos(streets[j].slope );
+            list[i][j].y = len * sin(streets[j].slope );
         }
+        printf("---\n");
     }
     /*
     for(int i = 0; i < rings; i++)
